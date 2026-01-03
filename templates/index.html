@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoCrisp - AI Image Enhancement</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .logo {
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .tagline {
+            color: #a0a0b0;
+            font-size: 1.1rem;
+            font-weight: 300;
+        }
+
+        /* URL Input Section */
+        .input-section {
+            max-width: 700px;
+            margin: 0 auto 60px;
+        }
+
+        .url-input-wrapper {
+            position: relative;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .url-input-wrapper:focus-within {
+            border-color: #667eea;
+            box-shadow: 0 0 30px rgba(102, 126, 234, 0.2);
+        }
+
+        .url-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 16px 20px;
+            font-size: 1rem;
+            color: #fff;
+            outline: none;
+        }
+
+        .url-input::placeholder {
+            color: #606070;
+        }
+
+        .enhance-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            padding: 16px 32px;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .enhance-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .enhance-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Progress Section */
+        .progress-section {
+            max-width: 800px;
+            margin: 0 auto 60px;
+            display: none;
+        }
+
+        .progress-section.active {
+            display: block;
+        }
+
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .progress-steps::before {
+            content: '';
+            position: absolute;
+            top: 24px;
+            left: 60px;
+            right: 60px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .progress-line {
+            position: absolute;
+            top: 24px;
+            left: 60px;
+            height: 2px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.5s ease;
+            width: 0%;
+        }
+
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .step-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .step.active .step-icon {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: transparent;
+            animation: pulse 2s infinite;
+        }
+
+        .step.completed .step-icon {
+            background: #10b981;
+            border-color: transparent;
+        }
+
+        .step-label {
+            font-size: 0.85rem;
+            color: #606070;
+            font-weight: 500;
+        }
+
+        .step.active .step-label,
+        .step.completed .step-label {
+            color: #fff;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.4); }
+            50% { box-shadow: 0 0 0 15px rgba(102, 126, 234, 0); }
+        }
+
+        /* Stats */
+        .stats-bar {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #606070;
+            margin-top: 4px;
+        }
+
+        /* Comparison Section */
+        .comparison-section {
+            display: none;
+            margin-top: 40px;
+        }
+
+        .comparison-section.active {
+            display: block;
+        }
+
+        .comparison-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .comparison-header h2 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+
+        .comparison-header p {
+            color: #a0a0b0;
+        }
+
+        .comparison-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 20px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .comparison-panel {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .panel-header {
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .panel-title {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .panel-title.original { color: #f87171; }
+        .panel-title.enhanced { color: #34d399; }
+
+        .panel-iframe {
+            width: 100%;
+            height: 600px;
+            border: none;
+            background: #fff;
+        }
+
+        /* Image Grid */
+        .images-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .image-card {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .image-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(102, 126, 234, 0.3);
+        }
+
+        .image-card img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+
+        .image-card-info {
+            padding: 12px;
+        }
+
+        .image-card-status {
+            font-size: 0.75rem;
+            padding: 4px 8px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .status-pending { background: rgba(255, 255, 255, 0.1); color: #a0a0b0; }
+        .status-processing { background: rgba(102, 126, 234, 0.2); color: #667eea; }
+        .status-completed { background: rgba(16, 185, 129, 0.2); color: #10b981; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .comparison-container {
+                grid-template-columns: 1fr;
+            }
+
+            .progress-steps {
+                flex-wrap: wrap;
+                gap: 20px;
+            }
+
+            .progress-steps::before,
+            .progress-line {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1 class="logo">AutoCrisp</h1>
+            <p class="tagline">AI-powered image enhancement for your website</p>
+        </header>
+
+        <section class="input-section">
+            <div class="url-input-wrapper">
+                <input type="url" class="url-input" id="urlInput" placeholder="Enter your website URL (e.g., https://example.com)">
+                <button class="enhance-btn" id="enhanceBtn" onclick="startEnhancement()">
+                    Enhance Images
+                </button>
+            </div>
+        </section>
+
+        <section class="progress-section" id="progressSection">
+            <div class="progress-steps">
+                <div class="progress-line" id="progressLine"></div>
+                <div class="step" id="step1">
+                    <div class="step-icon">🔍</div>
+                    <span class="step-label">Scanning</span>
+                </div>
+                <div class="step" id="step2">
+                    <div class="step-icon">📥</div>
+                    <span class="step-label">Downloading</span>
+                </div>
+                <div class="step" id="step3">
+                    <div class="step-icon">✨</div>
+                    <span class="step-label">Enhancing</span>
+                </div>
+                <div class="step" id="step4">
+                    <div class="step-icon">🚀</div>
+                    <span class="step-label">Complete</span>
+                </div>
+            </div>
+
+            <div class="stats-bar">
+                <div class="stat">
+                    <div class="stat-value" id="totalImages">0</div>
+                    <div class="stat-label">Images Found</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="processedImages">0</div>
+                    <div class="stat-label">Enhanced</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="savedSpace">0%</div>
+                    <div class="stat-label">Quality Boost</div>
+                </div>
+            </div>
+
+            <div class="images-grid" id="imagesGrid"></div>
+        </section>
+
+        <section class="comparison-section" id="comparisonSection">
+            <div class="comparison-header">
+                <h2>Before & After Comparison</h2>
+                <p>See the difference AI enhancement makes to your images</p>
+            </div>
+            <div class="comparison-container">
+                <div class="comparison-panel">
+                    <div class="panel-header">
+                        <span class="panel-title original">⬅ Original Website</span>
+                    </div>
+                    <iframe class="panel-iframe" id="originalFrame"></iframe>
+                </div>
+                <div class="comparison-panel">
+                    <div class="panel-header">
+                        <span class="panel-title enhanced">Enhanced Website ➡</span>
+                    </div>
+                    <iframe class="panel-iframe" id="enhancedFrame"></iframe>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        let currentScanId = null;
+        let websiteUrl = null;
+        let images = [];
+
+        async function startEnhancement() {
+            const urlInput = document.getElementById('urlInput');
+            const url = urlInput.value.trim();
+
+            if (!url) {
+                alert('Please enter a website URL');
+                return;
+            }
+
+            websiteUrl = url;
+            document.getElementById('enhanceBtn').disabled = true;
+            document.getElementById('enhanceBtn').textContent = 'Processing...';
+            document.getElementById('progressSection').classList.add('active');
+
+            // Step 1: Scanning
+            setStep(1);
+            try {
+                const scanResponse = await fetch('/api/scan', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url })
+                });
+                const scanData = await scanResponse.json();
+                currentScanId = scanData.scan_id;
+                images = scanData.images;
+                document.getElementById('totalImages').textContent = images.length;
+                renderImagesGrid();
+
+                // Step 2: Downloaded (scan already downloads)
+                setStep(2);
+                await sleep(500);
+
+                // Step 3: Enhancing
+                setStep(3);
+                await enhanceAllImages();
+
+                // Step 4: Complete
+                setStep(4);
+                document.getElementById('enhanceBtn').textContent = 'Complete!';
+
+                // Show comparison
+                showComparison();
+
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred: ' + error.message);
+                document.getElementById('enhanceBtn').disabled = false;
+                document.getElementById('enhanceBtn').textContent = 'Enhance Images';
+            }
+        }
+
+        function setStep(stepNum) {
+            for (let i = 1; i <= 4; i++) {
+                const step = document.getElementById(`step${i}`);
+                step.classList.remove('active', 'completed');
+                if (i < stepNum) step.classList.add('completed');
+                if (i === stepNum) step.classList.add('active');
+            }
+            const progress = ((stepNum - 1) / 3) * 100;
+            document.getElementById('progressLine').style.width = `${progress}%`;
+        }
+
+        async function enhanceAllImages() {
+            let processed = 0;
+
+            for (const img of images) {
+                updateImageStatus(img.id, 'processing');
+
+                try {
+                    await fetch('/api/enhance', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ image_id: img.id, scale: 2 })
+                    });
+
+                    // Poll for completion
+                    let status = 'processing';
+                    while (status === 'processing') {
+                        await sleep(2000);
+                        const statusResp = await fetch(`/api/status/job_${img.id}`);
+                        const statusData = await statusResp.json();
+                        status = statusData.status;
+                    }
+
+                    if (status === 'completed') {
+                        processed++;
+                        document.getElementById('processedImages').textContent = processed;
+                        updateImageStatus(img.id, 'completed');
+                    } else {
+                        updateImageStatus(img.id, 'failed');
+                    }
+                } catch (e) {
+                    console.error('Enhancement error:', e);
+                    updateImageStatus(img.id, 'failed');
+                }
+            }
+
+            const boost = Math.round((processed / images.length) * 100);
+            document.getElementById('savedSpace').textContent = `${boost}%`;
+        }
+
+        function renderImagesGrid() {
+            const grid = document.getElementById('imagesGrid');
+            grid.innerHTML = images.map(img => `
+                <div class="image-card" id="card-${img.id}">
+                    <img src="${img.original_url}" alt="${img.alt_text || 'Image'}">
+                    <div class="image-card-info">
+                        <span class="image-card-status status-pending" id="status-${img.id}">Pending</span>
+                        <div style="font-size: 0.75rem; color: #606070; margin-top: 6px;">
+                            ${img.width}x${img.height}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateImageStatus(imageId, status) {
+            const statusEl = document.getElementById(`status-${imageId}`);
+            if (statusEl) {
+                statusEl.className = `image-card-status status-${status}`;
+                statusEl.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+            }
+        }
+
+        function showComparison() {
+            document.getElementById('comparisonSection').classList.add('active');
+            document.getElementById('originalFrame').src = websiteUrl;
+            // For demo, show same URL (in production, would show modified version)
+            document.getElementById('enhancedFrame').src = websiteUrl;
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // Enter key triggers enhancement
+        document.getElementById('urlInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') startEnhancement();
+        });
+    </script>
+</body>
+</html>

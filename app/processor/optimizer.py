@@ -1,5 +1,6 @@
 from pathlib import Path
 from dataclasses import dataclass
+from typing import Optional, Tuple
 
 from PIL import Image
 
@@ -13,8 +14,8 @@ class OptimizationResult:
     output_path: Path
     original_size: int
     optimized_size: int
-    original_dimensions: tuple[int, int]
-    optimized_dimensions: tuple[int, int]
+    original_dimensions: Tuple[int, int]
+    optimized_dimensions: Tuple[int, int]
 
     @property
     def size_reduction_percent(self) -> float:
@@ -31,13 +32,13 @@ class ImageOptimizer:
         self,
         output_format: str = OUTPUT_FORMAT,
         quality: int = OUTPUT_QUALITY,
-        max_dimension: int | None = None
+        max_dimension: Optional[int] = None
     ):
         self.output_format = output_format.lower()
         self.quality = quality
         self.max_dimension = max_dimension
 
-    def optimize(self, image_path: Path, output_name: str | None = None) -> OptimizationResult:
+    def optimize(self, image_path: Path, output_name: Optional[str] = None) -> OptimizationResult:
         """
         Optimize an image for web delivery.
 

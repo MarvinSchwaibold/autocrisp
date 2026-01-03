@@ -3,7 +3,7 @@ import hashlib
 from pathlib import Path
 from urllib.parse import urljoin, urlparse
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, List
 
 import requests
 from bs4 import BeautifulSoup
@@ -36,7 +36,7 @@ class WebScraper:
         self.session.headers.update({
             "User-Agent": "Mozilla/5.0 (compatible; ImageEnhancerBot/1.0)"
         })
-        self.images: list[ImageInfo] = []
+        self.images: List[ImageInfo] = []
 
     def _generate_id(self, url: str) -> str:
         """Generate a unique ID for an image URL."""
@@ -52,7 +52,7 @@ class WebScraper:
         """Convert relative URL to absolute."""
         return urljoin(self.base_url, url)
 
-    def _extract_background_images(self, soup: BeautifulSoup) -> list[str]:
+    def _extract_background_images(self, soup: BeautifulSoup) -> List[str]:
         """Extract background-image URLs from inline styles."""
         urls = []
         pattern = re.compile(r'background(?:-image)?\s*:\s*url\(["\']?([^"\')\s]+)["\']?\)')
@@ -70,7 +70,7 @@ class WebScraper:
 
         return urls
 
-    def scan(self) -> list[ImageInfo]:
+    def scan(self) -> List[ImageInfo]:
         """Scan the website for all images."""
         try:
             response = self.session.get(self.base_url, timeout=30)
@@ -158,7 +158,7 @@ class WebScraper:
 
         return image
 
-    def download_all(self) -> list[ImageInfo]:
+    def download_all(self) -> List[ImageInfo]:
         """Download all discovered images."""
         for image in self.images:
             try:
