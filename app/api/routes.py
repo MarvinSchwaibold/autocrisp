@@ -1,7 +1,8 @@
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List, Dict
 
 from fastapi import APIRouter, HTTPException, BackgroundTasks
+from fastapi.responses import FileResponse
 from pydantic import BaseModel, HttpUrl
 
 from app.scraper import WebScraper
@@ -11,8 +12,8 @@ from app.config import TEMP_DIR, OUTPUT_DIR
 router = APIRouter()
 
 # In-memory storage for POC (would use a database in production)
-scan_results: dict[str, list[dict]] = {}
-job_status: dict[str, dict] = {}
+scan_results: Dict[str, List[dict]] = {}
+job_status: Dict[str, dict] = {}
 
 
 class ScanRequest(BaseModel):
@@ -23,7 +24,7 @@ class ScanResponse(BaseModel):
     scan_id: str
     url: str
     image_count: int
-    images: list[dict]
+    images: List[dict]
 
 
 class EnhanceRequest(BaseModel):
@@ -202,6 +203,22 @@ async def get_results():
         })
 
     return {"count": len(results), "files": results}
+
+
+@router.get("/enhanced/{image_id}")
+async def get_enhanced_image(image_id: str):
+    """Serve an enhanced image by ID."""
+    # Look for the enhanced image in output directory
+    for ext in ['.png', '.webp', '.jpg', '.jpeg']:
+        image_path = OUTPUT_DIR / f"enhanced_{image_id}{ext}"
+        if image_path.exists():
+            return FileResponse(
+                path=str(image_path),
+                media_type=f"image/{ext[1:]}",
+                filename=f"enhanced_{image_id}{ext}"
+            )
+
+    raise HTTPException(status_code=404, detail="Enhanced image not found")
 
 
 @router.delete("/clear")
