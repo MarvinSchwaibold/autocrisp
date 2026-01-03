@@ -46,7 +46,22 @@ class WebScraper:
         """Check if URL points to a supported image format."""
         parsed = urlparse(url)
         path = parsed.path.lower()
-        return any(path.endswith(ext) for ext in self.SUPPORTED_EXTENSIONS)
+
+        # Check for standard extensions
+        if any(path.endswith(ext) for ext in self.SUPPORTED_EXTENSIONS):
+            return True
+
+        # Check for known image CDNs that don't use extensions
+        image_hosts = ['image.mux.com', 'images.unsplash.com', 'cloudinary.com',
+                       'imgix.net', 'cdn.sanity.io', 'res.cloudinary.com']
+        if any(host in url.lower() for host in image_hosts):
+            return True
+
+        # Check for image query params
+        if 'format=jpg' in url or 'format=png' in url or 'format=webp' in url:
+            return True
+
+        return False
 
     def _resolve_url(self, url: str) -> str:
         """Convert relative URL to absolute."""
@@ -138,9 +153,21 @@ class WebScraper:
         except requests.RequestException as e:
             raise Exception(f"Failed to download {image.original_url}: {e}")
 
-        # Determine file extension
+        # Determine file extension from URL, content-type, or default
         parsed = urlparse(image.original_url)
-        ext = Path(parsed.path).suffix.lower() or ".jpg"
+        ext = Path(parsed.path).suffix.lower()
+
+        if not ext or ext not in self.SUPPORTED_EXTENSIONS:
+            # Try to get from content-type header
+            content_type = response.headers.get('content-type', '').lower()
+            if 'png' in content_type:
+                ext = '.png'
+            elif 'gif' in content_type:
+                ext = '.gif'
+            elif 'webp' in content_type:
+                ext = '.webp'
+            else:
+                ext = '.jpg'  # Default to jpg
 
         # Save to temp directory
         local_path = TEMP_DIR / f"{image.id}{ext}"

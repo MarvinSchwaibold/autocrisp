@@ -4,8 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AutoCrisp - AI Image Enhancement</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
+        /* CSS Variables - shadcn/ui inspired */
+        :root {
+            --background: #09090b;
+            --foreground: #fafafa;
+            --card: #09090b;
+            --card-foreground: #fafafa;
+            --muted: #27272a;
+            --muted-foreground: #a1a1aa;
+            --border: #27272a;
+            --input: #27272a;
+            --primary: #fafafa;
+            --primary-foreground: #18181b;
+            --secondary: #27272a;
+            --secondary-foreground: #fafafa;
+            --accent: #27272a;
+            --accent-foreground: #fafafa;
+            --destructive: #ef4444;
+            --radius: 0.5rem;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -14,103 +34,117 @@
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%);
+            background: var(--background);
             min-height: 100vh;
-            color: #fff;
+            color: var(--foreground);
+            line-height: 1.5;
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 40px 20px;
+            padding: 48px 24px;
         }
 
         /* Header */
         .header {
             text-align: center;
-            margin-bottom: 60px;
+            margin-bottom: 48px;
         }
 
         .logo {
-            font-size: 3rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 10px;
+            font-size: 2rem;
+            font-weight: 600;
+            letter-spacing: -0.025em;
+            margin-bottom: 8px;
         }
 
         .tagline {
-            color: #a0a0b0;
-            font-size: 1.1rem;
-            font-weight: 300;
+            color: var(--muted-foreground);
+            font-size: 0.875rem;
         }
 
-        /* URL Input Section */
+        /* Input Section */
         .input-section {
-            max-width: 700px;
-            margin: 0 auto 60px;
+            max-width: 600px;
+            margin: 0 auto 48px;
         }
 
-        .url-input-wrapper {
-            position: relative;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 16px;
-            padding: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+        .input-wrapper {
             display: flex;
-            gap: 10px;
-            transition: all 0.3s ease;
-        }
-
-        .url-input-wrapper:focus-within {
-            border-color: #667eea;
-            box-shadow: 0 0 30px rgba(102, 126, 234, 0.2);
+            gap: 8px;
         }
 
         .url-input {
             flex: 1;
-            background: transparent;
-            border: none;
-            padding: 16px 20px;
-            font-size: 1rem;
-            color: #fff;
+            background: var(--background);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 10px 14px;
+            font-size: 0.875rem;
+            color: var(--foreground);
             outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
 
         .url-input::placeholder {
-            color: #606070;
+            color: var(--muted-foreground);
         }
 
-        .enhance-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-            padding: 16px 32px;
-            border-radius: 10px;
-            color: #fff;
-            font-size: 1rem;
-            font-weight: 600;
+        .url-input:focus {
+            border-color: var(--foreground);
+            box-shadow: 0 0 0 1px var(--foreground);
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius);
+            font-size: 0.875rem;
+            font-weight: 500;
+            padding: 10px 16px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.2s;
+            border: none;
             white-space: nowrap;
         }
 
-        .enhance-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        .btn-primary {
+            background: var(--primary);
+            color: var(--primary-foreground);
         }
 
-        .enhance-btn:disabled {
-            opacity: 0.6;
+        .btn-primary:hover {
+            background: #e4e4e7;
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
             cursor: not-allowed;
-            transform: none;
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+            color: var(--secondary-foreground);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: #3f3f46;
+        }
+
+        .btn-secondary.active {
+            background: var(--primary);
+            color: var(--primary-foreground);
+            border-color: var(--primary);
         }
 
         /* Progress Section */
         .progress-section {
-            max-width: 800px;
-            margin: 0 auto 60px;
+            max-width: 700px;
+            margin: 0 auto 48px;
             display: none;
         }
 
@@ -121,105 +155,83 @@
         .progress-steps {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 30px;
+            margin-bottom: 32px;
             position: relative;
         }
 
         .progress-steps::before {
             content: '';
             position: absolute;
-            top: 24px;
-            left: 60px;
-            right: 60px;
-            height: 2px;
-            background: rgba(255, 255, 255, 0.1);
+            top: 20px;
+            left: 50px;
+            right: 50px;
+            height: 1px;
+            background: var(--border);
         }
 
         .progress-line {
             position: absolute;
-            top: 24px;
-            left: 60px;
-            height: 2px;
-            background: linear-gradient(90deg, #667eea, #764ba2);
-            transition: width 0.5s ease, background 0.5s ease;
+            top: 20px;
+            left: 50px;
+            height: 1px;
+            background: var(--foreground);
+            transition: width 0.5s ease;
             width: 0%;
-        }
-
-        .progress-line.complete {
-            background: linear-gradient(90deg, #10b981, #059669);
         }
 
         .step {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 12px;
+            gap: 8px;
             position: relative;
             z-index: 1;
         }
 
         .step-icon {
-            width: 50px;
-            height: 50px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.05);
-            border: 2px solid rgba(255, 255, 255, 0.1);
+            background: var(--background);
+            border: 1px solid var(--border);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.2rem;
-            transition: all 0.3s ease;
-            position: relative;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+            color: var(--muted-foreground);
         }
 
         .step.active .step-icon {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-color: transparent;
-            animation: pulse 2s infinite;
+            border-color: var(--foreground);
+            color: var(--foreground);
         }
 
         .step.completed .step-icon {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            border-color: transparent;
-            box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
-        }
-
-        .step.completed .step-icon .step-emoji {
-            display: none;
-        }
-
-        .step.completed .step-icon::after {
-            content: '✓';
-            position: absolute;
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #fff;
+            background: var(--foreground);
+            border-color: var(--foreground);
+            color: var(--background);
         }
 
         .step-label {
-            font-size: 0.85rem;
-            color: #606070;
-            font-weight: 500;
+            font-size: 0.75rem;
+            color: var(--muted-foreground);
         }
 
         .step.active .step-label,
         .step.completed .step-label {
-            color: #fff;
-        }
-
-        @keyframes pulse {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.4); }
-            50% { box-shadow: 0 0 0 15px rgba(102, 126, 234, 0); }
+            color: var(--foreground);
         }
 
         /* Stats */
         .stats-bar {
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 12px;
-            padding: 20px 30px;
             display: flex;
-            justify-content: space-around;
-            margin-bottom: 30px;
+            justify-content: center;
+            gap: 48px;
+            padding: 24px 0;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 32px;
         }
 
         .stat {
@@ -227,69 +239,111 @@
         }
 
         .stat-value {
-            font-size: 1.8rem;
+            font-size: 1.5rem;
             font-weight: 600;
-            color: #667eea;
         }
 
         .stat-label {
-            font-size: 0.8rem;
-            color: #606070;
-            margin-top: 4px;
+            font-size: 0.75rem;
+            color: var(--muted-foreground);
+            margin-top: 2px;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+        }
+
+        /* Image Grid */
+        .images-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 12px;
+        }
+
+        .image-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            transition: border-color 0.2s;
+        }
+
+        .image-card:hover {
+            border-color: var(--muted-foreground);
+        }
+
+        .image-card img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+        }
+
+        .image-card-info {
+            padding: 12px;
+        }
+
+        .image-card-status {
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 9999px;
+            display: inline-block;
+        }
+
+        .status-pending {
+            background: var(--muted);
+            color: var(--muted-foreground);
+        }
+
+        .status-processing {
+            background: var(--muted);
+            color: var(--foreground);
+        }
+
+        .status-completed {
+            background: var(--foreground);
+            color: var(--background);
+        }
+
+        .status-failed {
+            background: #7f1d1d;
+            color: #fecaca;
         }
 
         /* Comparison Section */
         .comparison-section {
             display: none;
-            margin-top: 40px;
+            margin-top: 48px;
         }
 
         .comparison-section.active {
             display: block;
         }
 
-        .comparison-header {
+        .section-header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 24px;
         }
 
-        .comparison-header h2 {
-            font-size: 1.8rem;
-            margin-bottom: 10px;
+        .section-header h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 4px;
         }
 
-        .comparison-header p {
-            color: #a0a0b0;
+        .section-header p {
+            color: var(--muted-foreground);
+            font-size: 0.875rem;
         }
 
         /* Tabs */
         .tabs {
             display: flex;
             justify-content: center;
-            gap: 10px;
-            margin-bottom: 30px;
-        }
-
-        .tab-btn {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 12px 24px;
-            border-radius: 10px;
-            color: #a0a0b0;
-            font-size: 0.95rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .tab-btn:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .tab-btn.active {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-color: transparent;
-            color: #fff;
+            gap: 8px;
+            margin-bottom: 24px;
         }
 
         .tab-content {
@@ -300,25 +354,23 @@
             display: block;
         }
 
-        /* Image Grid Tab */
+        /* Comparison Grid */
         .comparison-grid {
             display: flex;
             flex-direction: column;
-            gap: 30px;
+            gap: 24px;
         }
 
         .comparison-item {
-            background: rgba(255, 255, 255, 0.02);
-            border-radius: 16px;
-            padding: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px;
         }
 
         .comparison-images {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            align-items: center;
+            gap: 16px;
         }
 
         .comparison-side {
@@ -326,145 +378,141 @@
         }
 
         .comparison-label {
-            font-size: 0.9rem;
-            font-weight: 600;
-            margin-bottom: 12px;
-            padding: 6px 16px;
-            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin-bottom: 8px;
+            padding: 4px 12px;
+            border-radius: 9999px;
             display: inline-block;
         }
 
         .comparison-label.original {
-            background: rgba(248, 113, 113, 0.2);
-            color: #f87171;
+            background: var(--muted);
+            color: var(--muted-foreground);
         }
 
         .comparison-label.enhanced {
-            background: rgba(52, 211, 153, 0.2);
-            color: #34d399;
+            background: var(--foreground);
+            color: var(--background);
         }
 
         .comparison-side img {
             max-width: 100%;
-            max-height: 400px;
-            border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            max-height: 350px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
         }
 
         .comparison-meta {
-            margin-top: 10px;
-            font-size: 0.8rem;
-            color: #606070;
+            margin-top: 8px;
+            font-size: 0.75rem;
+            color: var(--muted-foreground);
         }
 
-        /* Side-by-Side Scroll View */
-        .scroll-comparison {
+        /* Website Comparison */
+        .website-comparison {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            background: rgba(255, 255, 255, 0.02);
-            border-radius: 20px;
-            padding: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            gap: 16px;
         }
 
-        .scroll-panel {
-            background: #fff;
-            border-radius: 12px;
+        .website-panel {
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
 
-        .scroll-panel-header {
-            padding: 12px 20px;
-            background: rgba(0, 0, 0, 0.8);
-            color: #fff;
-            font-weight: 600;
-            font-size: 0.9rem;
+        .website-panel-header {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
             display: flex;
             align-items: center;
-            gap: 8px;
+            justify-content: space-between;
         }
 
-        .scroll-panel-header.original { background: linear-gradient(135deg, #dc2626, #991b1b); }
-        .scroll-panel-header.enhanced { background: linear-gradient(135deg, #059669, #047857); }
-
-        .scroll-panel-content {
-            height: 600px;
-            overflow-y: auto;
-            padding: 20px;
-            background: linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%);
+        .panel-label {
+            font-size: 0.75rem;
+            font-weight: 500;
+            padding: 4px 12px;
+            border-radius: 9999px;
         }
 
-        .scroll-panel-content img {
+        .panel-label.original {
+            background: var(--muted);
+            color: var(--muted-foreground);
+        }
+
+        .panel-label.enhanced {
+            background: var(--foreground);
+            color: var(--background);
+        }
+
+        .website-screenshot {
             width: 100%;
-            margin-bottom: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            max-height: 600px;
+            overflow-y: auto;
+            background: var(--muted);
         }
 
-        @media (max-width: 768px) {
-            .comparison-images,
-            .scroll-comparison {
+        .website-screenshot img {
+            width: 100%;
+            display: block;
+        }
+
+        .screenshot-loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 400px;
+            color: var(--muted-foreground);
+            gap: 16px;
+        }
+
+        .screenshot-loading .spinner {
+            width: 32px;
+            height: 32px;
+            border: 2px solid var(--border);
+            border-top-color: var(--foreground);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 1024px) {
+            .website-comparison {
                 grid-template-columns: 1fr;
             }
         }
 
-        /* Image Grid */
-        .images-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 15px;
-            margin-top: 30px;
-        }
-
-        .image-card {
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 12px;
-            overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            transition: all 0.3s ease;
-        }
-
-        .image-card:hover {
-            transform: translateY(-5px);
-            border-color: rgba(102, 126, 234, 0.3);
-        }
-
-        .image-card img {
-            width: 100%;
-            height: 150px;
-            object-fit: cover;
-        }
-
-        .image-card-info {
-            padding: 12px;
-        }
-
-        .image-card-status {
-            font-size: 0.75rem;
-            padding: 4px 8px;
-            border-radius: 4px;
-            display: inline-block;
-        }
-
-        .status-pending { background: rgba(255, 255, 255, 0.1); color: #a0a0b0; }
-        .status-processing { background: rgba(102, 126, 234, 0.2); color: #667eea; }
-        .status-completed { background: rgba(16, 185, 129, 0.2); color: #10b981; }
-
         /* Responsive */
         @media (max-width: 768px) {
-            .comparison-container {
+            .comparison-images {
                 grid-template-columns: 1fr;
             }
 
             .progress-steps {
                 flex-wrap: wrap;
-                gap: 20px;
+                gap: 16px;
+                justify-content: center;
             }
 
             .progress-steps::before,
             .progress-line {
                 display: none;
+            }
+
+            .stats-bar {
+                gap: 24px;
+            }
+
+            .input-wrapper {
+                flex-direction: column;
             }
         }
     </style>
@@ -477,9 +525,9 @@
         </header>
 
         <section class="input-section">
-            <div class="url-input-wrapper">
-                <input type="url" class="url-input" id="urlInput" placeholder="Enter your website URL (e.g., https://example.com)">
-                <button class="enhance-btn" id="enhanceBtn" onclick="startEnhancement()">
+            <div class="input-wrapper">
+                <input type="url" class="url-input" id="urlInput" placeholder="Enter website URL">
+                <button class="btn btn-primary" id="enhanceBtn" onclick="startEnhancement()">
                     Enhance Images
                 </button>
             </div>
@@ -489,19 +537,19 @@
             <div class="progress-steps">
                 <div class="progress-line" id="progressLine"></div>
                 <div class="step" id="step1">
-                    <div class="step-icon"><span class="step-emoji">🔍</span></div>
+                    <div class="step-icon">1</div>
                     <span class="step-label">Scanning</span>
                 </div>
                 <div class="step" id="step2">
-                    <div class="step-icon"><span class="step-emoji">📥</span></div>
+                    <div class="step-icon">2</div>
                     <span class="step-label">Downloading</span>
                 </div>
                 <div class="step" id="step3">
-                    <div class="step-icon"><span class="step-emoji">✨</span></div>
+                    <div class="step-icon">3</div>
                     <span class="step-label">Enhancing</span>
                 </div>
                 <div class="step" id="step4">
-                    <div class="step-icon"><span class="step-emoji">🚀</span></div>
+                    <div class="step-icon">4</div>
                     <span class="step-label">Complete</span>
                 </div>
             </div>
@@ -517,7 +565,7 @@
                 </div>
                 <div class="stat">
                     <div class="stat-value" id="savedSpace">0%</div>
-                    <div class="stat-label">Quality Boost</div>
+                    <div class="stat-label">Success Rate</div>
                 </div>
             </div>
 
@@ -525,36 +573,42 @@
         </section>
 
         <section class="comparison-section" id="comparisonSection">
-            <div class="comparison-header">
-                <h2>Before & After Comparison</h2>
-                <p>See the difference AI enhancement makes to your images</p>
+            <div class="section-header">
+                <h2>Before & After</h2>
+                <p>Compare original and enhanced images</p>
             </div>
 
             <div class="tabs">
-                <button class="tab-btn active" onclick="switchTab('images')">Image Comparison</button>
-                <button class="tab-btn" onclick="switchTab('scroll')">Side-by-Side Scroll</button>
+                <button class="btn btn-secondary active" onclick="switchTab('images')">Image Comparison</button>
+                <button class="btn btn-secondary" onclick="switchTab('website')">Website Preview</button>
             </div>
 
-            <!-- Tab 1: Image Comparison -->
             <div class="tab-content active" id="tab-images">
-                <div class="comparison-grid" id="comparisonGrid">
-                    <!-- Comparisons will be inserted here -->
-                </div>
+                <div class="comparison-grid" id="comparisonGrid"></div>
             </div>
 
-            <!-- Tab 2: Side-by-Side Scroll -->
-            <div class="tab-content" id="tab-scroll">
-                <div class="scroll-comparison">
-                    <div class="scroll-panel">
-                        <div class="scroll-panel-header original">Original Images</div>
-                        <div class="scroll-panel-content" id="scrollOriginal">
-                            <!-- Original images -->
+            <div class="tab-content" id="tab-website">
+                <div class="website-comparison">
+                    <div class="website-panel">
+                        <div class="website-panel-header">
+                            <span class="panel-label original">Original</span>
+                        </div>
+                        <div class="website-screenshot" id="screenshotBefore">
+                            <div class="screenshot-loading" id="loadingBefore">
+                                <div class="spinner"></div>
+                                <span>Capturing screenshot...</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="scroll-panel">
-                        <div class="scroll-panel-header enhanced">Enhanced Images</div>
-                        <div class="scroll-panel-content" id="scrollEnhanced">
-                            <!-- Enhanced images -->
+                    <div class="website-panel">
+                        <div class="website-panel-header">
+                            <span class="panel-label enhanced">Enhanced</span>
+                        </div>
+                        <div class="website-screenshot" id="screenshotAfter">
+                            <div class="screenshot-loading" id="loadingAfter">
+                                <div class="spinner"></div>
+                                <span>Capturing screenshot...</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -577,11 +631,24 @@
             }
 
             websiteUrl = url;
+            screenshotsLoaded = false; // Reset for new scan
+
+            // Reset screenshot containers
+            document.getElementById('screenshotBefore').innerHTML = `
+                <div class="screenshot-loading" id="loadingBefore">
+                    <div class="spinner"></div>
+                    <span>Capturing screenshot...</span>
+                </div>`;
+            document.getElementById('screenshotAfter').innerHTML = `
+                <div class="screenshot-loading" id="loadingAfter">
+                    <div class="spinner"></div>
+                    <span>Capturing screenshot...</span>
+                </div>`;
+
             document.getElementById('enhanceBtn').disabled = true;
             document.getElementById('enhanceBtn').textContent = 'Processing...';
             document.getElementById('progressSection').classList.add('active');
 
-            // Step 1: Scanning
             setStep(1);
             try {
                 const scanResponse = await fetch('/api/scan', {
@@ -595,19 +662,15 @@
                 document.getElementById('totalImages').textContent = images.length;
                 renderImagesGrid();
 
-                // Step 2: Downloaded (scan already downloads)
                 setStep(2);
                 await sleep(500);
 
-                // Step 3: Enhancing
                 setStep(3);
                 await enhanceAllImages();
 
-                // Step 4: Complete
                 setStep(4);
-                document.getElementById('enhanceBtn').textContent = 'Complete!';
+                document.getElementById('enhanceBtn').textContent = 'Complete';
 
-                // Show comparison
                 showComparison();
 
             } catch (error) {
@@ -624,7 +687,6 @@
                 step.classList.remove('active', 'completed');
 
                 if (stepNum === 4) {
-                    // All steps completed
                     step.classList.add('completed');
                 } else if (i < stepNum) {
                     step.classList.add('completed');
@@ -634,15 +696,7 @@
             }
 
             const progress = stepNum === 4 ? 100 : ((stepNum - 1) / 3) * 100;
-            const progressLine = document.getElementById('progressLine');
-            progressLine.style.width = `${progress}%`;
-
-            // Turn line green when complete
-            if (stepNum === 4) {
-                progressLine.classList.add('complete');
-            } else {
-                progressLine.classList.remove('complete');
-            }
+            document.getElementById('progressLine').style.width = `${progress}%`;
         }
 
         async function enhanceAllImages() {
@@ -658,7 +712,6 @@
                         body: JSON.stringify({ image_id: img.id, scale: 2 })
                     });
 
-                    // Poll for completion
                     let status = 'processing';
                     while (status === 'processing') {
                         await sleep(2000);
@@ -680,8 +733,8 @@
                 }
             }
 
-            const boost = Math.round((processed / images.length) * 100);
-            document.getElementById('savedSpace').textContent = `${boost}%`;
+            const rate = Math.round((processed / images.length) * 100);
+            document.getElementById('savedSpace').textContent = `${rate}%`;
         }
 
         function renderImagesGrid() {
@@ -691,8 +744,8 @@
                     <img src="${img.original_url}" alt="${img.alt_text || 'Image'}">
                     <div class="image-card-info">
                         <span class="image-card-status status-pending" id="status-${img.id}">Pending</span>
-                        <div style="font-size: 0.75rem; color: #606070; margin-top: 6px;">
-                            ${img.width}x${img.height}
+                        <div style="font-size: 0.7rem; color: var(--muted-foreground); margin-top: 4px;">
+                            ${img.width || '?'}x${img.height || '?'}
                         </div>
                     </div>
                 </div>
@@ -710,16 +763,14 @@
         function showComparison() {
             document.getElementById('comparisonSection').classList.add('active');
 
-            // Filter to only show completed images
             const completedImages = images.filter(img => {
                 const statusEl = document.getElementById(`status-${img.id}`);
                 return statusEl && statusEl.textContent === 'Completed';
             });
 
-            // Tab 1: Image comparison grid
             const grid = document.getElementById('comparisonGrid');
             if (completedImages.length === 0) {
-                grid.innerHTML = '<p style="text-align: center; color: #a0a0b0;">No images were successfully enhanced.</p>';
+                grid.innerHTML = '<p style="text-align: center; color: var(--muted-foreground);">No images were successfully enhanced.</p>';
             } else {
                 grid.innerHTML = completedImages.map(img => `
                     <div class="comparison-item">
@@ -727,60 +778,87 @@
                             <div class="comparison-side">
                                 <div class="comparison-label original">Original</div>
                                 <img src="${img.original_url}" alt="Original">
-                                <div class="comparison-meta">${img.width} × ${img.height}</div>
+                                <div class="comparison-meta">${img.width || '?'} x ${img.height || '?'}</div>
                             </div>
                             <div class="comparison-side">
-                                <div class="comparison-label enhanced">Enhanced 2×</div>
+                                <div class="comparison-label enhanced">Enhanced</div>
                                 <img src="/api/enhanced/${img.id}" alt="Enhanced">
-                                <div class="comparison-meta">${img.width * 2} × ${img.height * 2}</div>
+                                <div class="comparison-meta">${(img.width || 0) * 2} x ${(img.height || 0) * 2}</div>
                             </div>
                         </div>
                     </div>
                 `).join('');
             }
-
-            // Tab 2: Side-by-side scroll view
-            const scrollOriginal = document.getElementById('scrollOriginal');
-            const scrollEnhanced = document.getElementById('scrollEnhanced');
-
-            scrollOriginal.innerHTML = completedImages.map(img =>
-                `<img src="${img.original_url}" alt="Original">`
-            ).join('');
-
-            scrollEnhanced.innerHTML = completedImages.map(img =>
-                `<img src="/api/enhanced/${img.id}" alt="Enhanced">`
-            ).join('');
-
-            // Setup synchronized scrolling
-            setupSyncScroll();
         }
 
         function switchTab(tabName) {
-            // Update buttons
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tabs .btn').forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
 
-            // Update content
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
             document.getElementById(`tab-${tabName}`).classList.add('active');
+
+            // Capture screenshots when website tab is selected
+            if (tabName === 'website' && currentScanId) {
+                captureScreenshots();
+            }
         }
 
-        function setupSyncScroll() {
-            const panel1 = document.getElementById('scrollOriginal');
-            const panel2 = document.getElementById('scrollEnhanced');
+        let screenshotsLoaded = false;
+
+        async function captureScreenshots() {
+            if (screenshotsLoaded) return;
+
+            try {
+                // Trigger screenshot capture
+                const response = await fetch(`/api/screenshots/${currentScanId}`, {
+                    method: 'POST'
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to capture screenshots');
+                }
+
+                const data = await response.json();
+
+                // Display the screenshots
+                const screenshotBefore = document.getElementById('screenshotBefore');
+                const screenshotAfter = document.getElementById('screenshotAfter');
+
+                // Add cache-busting timestamp
+                const timestamp = Date.now();
+
+                screenshotBefore.innerHTML = `<img src="/api/screenshot/${currentScanId}/before?t=${timestamp}" alt="Original website">`;
+                screenshotAfter.innerHTML = `<img src="/api/screenshot/${currentScanId}/after?t=${timestamp}" alt="Enhanced website">`;
+
+                screenshotsLoaded = true;
+
+                // Sync scrolling between panels
+                setupScrollSync();
+
+            } catch (error) {
+                console.error('Screenshot error:', error);
+                document.getElementById('loadingBefore').innerHTML = `<span style="color: var(--destructive);">Failed to capture screenshot</span>`;
+                document.getElementById('loadingAfter').innerHTML = `<span style="color: var(--destructive);">Failed to capture screenshot</span>`;
+            }
+        }
+
+        function setupScrollSync() {
+            const beforePanel = document.getElementById('screenshotBefore');
+            const afterPanel = document.getElementById('screenshotAfter');
             let isSyncing = false;
 
-            panel1.addEventListener('scroll', () => {
+            beforePanel.addEventListener('scroll', () => {
                 if (isSyncing) return;
                 isSyncing = true;
-                panel2.scrollTop = panel1.scrollTop;
+                afterPanel.scrollTop = beforePanel.scrollTop;
                 isSyncing = false;
             });
 
-            panel2.addEventListener('scroll', () => {
+            afterPanel.addEventListener('scroll', () => {
                 if (isSyncing) return;
                 isSyncing = true;
-                panel1.scrollTop = panel2.scrollTop;
+                beforePanel.scrollTop = afterPanel.scrollTop;
                 isSyncing = false;
             });
         }
@@ -789,7 +867,6 @@
             return new Promise(resolve => setTimeout(resolve, ms));
         }
 
-        // Enter key triggers enhancement
         document.getElementById('urlInput').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') startEnhancement();
         });

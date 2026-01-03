@@ -13,8 +13,12 @@ OUTPUT_DIR = BASE_DIR / "output"
 TEMP_DIR.mkdir(exist_ok=True)
 OUTPUT_DIR.mkdir(exist_ok=True)
 
-# Replicate API
+# API Keys
 REPLICATE_API_TOKEN = os.getenv("REPLICATE_API_TOKEN", "")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
+
+# Enhancement provider: "openai" or "replicate"
+ENHANCEMENT_PROVIDER = os.getenv("ENHANCEMENT_PROVIDER", "openai")
 
 # Image processing settings
 MAX_IMAGE_SIZE_MB = int(os.getenv("MAX_IMAGE_SIZE_MB", "10"))
