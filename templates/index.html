@@ -244,6 +244,45 @@
             color: #a0a0b0;
         }
 
+        /* Tabs */
+        .tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .tab-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px 24px;
+            border-radius: 10px;
+            color: #a0a0b0;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: transparent;
+            color: #fff;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Image Grid Tab */
         .comparison-grid {
             display: flex;
             flex-direction: column;
@@ -300,16 +339,54 @@
             color: #606070;
         }
 
-        .comparison-arrow {
+        /* Side-by-Side Scroll View */
+        .scroll-comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 20px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .scroll-panel {
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .scroll-panel-header {
+            padding: 12px 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            font-weight: 600;
+            font-size: 0.9rem;
             display: flex;
             align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            color: #667eea;
+            gap: 8px;
+        }
+
+        .scroll-panel-header.original { background: linear-gradient(135deg, #dc2626, #991b1b); }
+        .scroll-panel-header.enhanced { background: linear-gradient(135deg, #059669, #047857); }
+
+        .scroll-panel-content {
+            height: 600px;
+            overflow-y: auto;
+            padding: 20px;
+            background: linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+
+        .scroll-panel-content img {
+            width: 100%;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
 
         @media (max-width: 768px) {
-            .comparison-images {
+            .comparison-images,
+            .scroll-comparison {
                 grid-template-columns: 1fr;
             }
         }
@@ -434,8 +511,35 @@
                 <h2>Before & After Comparison</h2>
                 <p>See the difference AI enhancement makes to your images</p>
             </div>
-            <div class="comparison-grid" id="comparisonGrid">
-                <!-- Comparisons will be inserted here -->
+
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('images')">Image Comparison</button>
+                <button class="tab-btn" onclick="switchTab('scroll')">Side-by-Side Scroll</button>
+            </div>
+
+            <!-- Tab 1: Image Comparison -->
+            <div class="tab-content active" id="tab-images">
+                <div class="comparison-grid" id="comparisonGrid">
+                    <!-- Comparisons will be inserted here -->
+                </div>
+            </div>
+
+            <!-- Tab 2: Side-by-Side Scroll -->
+            <div class="tab-content" id="tab-scroll">
+                <div class="scroll-comparison">
+                    <div class="scroll-panel">
+                        <div class="scroll-panel-header original">Original Images</div>
+                        <div class="scroll-panel-content" id="scrollOriginal">
+                            <!-- Original images -->
+                        </div>
+                    </div>
+                    <div class="scroll-panel">
+                        <div class="scroll-panel-header enhanced">Enhanced Images</div>
+                        <div class="scroll-panel-content" id="scrollEnhanced">
+                            <!-- Enhanced images -->
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
     </div>
@@ -571,7 +675,6 @@
 
         function showComparison() {
             document.getElementById('comparisonSection').classList.add('active');
-            const grid = document.getElementById('comparisonGrid');
 
             // Filter to only show completed images
             const completedImages = images.filter(img => {
@@ -579,27 +682,73 @@
                 return statusEl && statusEl.textContent === 'Completed';
             });
 
+            // Tab 1: Image comparison grid
+            const grid = document.getElementById('comparisonGrid');
             if (completedImages.length === 0) {
                 grid.innerHTML = '<p style="text-align: center; color: #a0a0b0;">No images were successfully enhanced.</p>';
-                return;
-            }
-
-            grid.innerHTML = completedImages.map(img => `
-                <div class="comparison-item">
-                    <div class="comparison-images">
-                        <div class="comparison-side">
-                            <div class="comparison-label original">Original</div>
-                            <img src="${img.original_url}" alt="Original">
-                            <div class="comparison-meta">${img.width} × ${img.height}</div>
-                        </div>
-                        <div class="comparison-side">
-                            <div class="comparison-label enhanced">Enhanced 2×</div>
-                            <img src="/api/enhanced/${img.id}" alt="Enhanced">
-                            <div class="comparison-meta">${img.width * 2} × ${img.height * 2}</div>
+            } else {
+                grid.innerHTML = completedImages.map(img => `
+                    <div class="comparison-item">
+                        <div class="comparison-images">
+                            <div class="comparison-side">
+                                <div class="comparison-label original">Original</div>
+                                <img src="${img.original_url}" alt="Original">
+                                <div class="comparison-meta">${img.width} × ${img.height}</div>
+                            </div>
+                            <div class="comparison-side">
+                                <div class="comparison-label enhanced">Enhanced 2×</div>
+                                <img src="/api/enhanced/${img.id}" alt="Enhanced">
+                                <div class="comparison-meta">${img.width * 2} × ${img.height * 2}</div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            `).join('');
+                `).join('');
+            }
+
+            // Tab 2: Side-by-side scroll view
+            const scrollOriginal = document.getElementById('scrollOriginal');
+            const scrollEnhanced = document.getElementById('scrollEnhanced');
+
+            scrollOriginal.innerHTML = completedImages.map(img =>
+                `<img src="${img.original_url}" alt="Original">`
+            ).join('');
+
+            scrollEnhanced.innerHTML = completedImages.map(img =>
+                `<img src="/api/enhanced/${img.id}" alt="Enhanced">`
+            ).join('');
+
+            // Setup synchronized scrolling
+            setupSyncScroll();
+        }
+
+        function switchTab(tabName) {
+            // Update buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Update content
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+        }
+
+        function setupSyncScroll() {
+            const panel1 = document.getElementById('scrollOriginal');
+            const panel2 = document.getElementById('scrollEnhanced');
+            let isSyncing = false;
+
+            panel1.addEventListener('scroll', () => {
+                if (isSyncing) return;
+                isSyncing = true;
+                panel2.scrollTop = panel1.scrollTop;
+                isSyncing = false;
+            });
+
+            panel2.addEventListener('scroll', () => {
+                if (isSyncing) return;
+                isSyncing = true;
+                panel1.scrollTop = panel2.scrollTop;
+                isSyncing = false;
+            });
         }
 
         function sleep(ms) {
